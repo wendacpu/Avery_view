@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avery - AI-Powered LinkedIn Content Studio</title>
+    <meta name="description" content="Transform your LinkedIn presence with AI-generated content that captures your unique voice and expertise.">
+
+    <!-- Fonts: Space Grotesk + IBM Plex Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="src/styles/design-system.css">
+    <link rel="stylesheet" href="src/styles/animations.css">
+
+    <style>
+        :root {
+            /* Colors */
+            --color-bg: #0a0a0a;
+            --color-bg-secondary: #111111;
+            --color-bg-tertiary: #1a1a1a;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: rgba(255, 255, 255, 0.7);
+            --color-text-muted: rgba(255, 255, 255, 0.5);
+            --color-accent-primary: #7c3aed;
+            --color-accent-secondary: #06b6d4;
+            --color-accent-gradient: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-border-subtle: rgba(255, 255, 255, 0.05);
+
+            /* Typography */
+            --font-heading: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-body: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            --space-2xl: 4rem;
+            --space-3xl: 6rem;
+
+            /* Effects */
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+            --glow-primary: 0 0 40px rgba(124, 58, 237, 0.3);
+            --glow-secondary: 0 0 40px rgba(6, 182, 212, 0.3);
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Animated Grid Background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+            background-image:
+                linear-gradient(var(--color-border-subtle) 1px, transparent 1px),
+                linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Gradient Orbs */
+        .gradient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gradient-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--color-accent-primary), transparent);
+            top: -200px;
+            right: -200px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .gradient-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--color-accent-secondary), transparent);
+            bottom: -150px;
+            left: -150px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 30px); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: var(--space-md) 0;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--color-border-subtle);
+            z-index: 1000;
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--color-accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-xl);
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition-fast);
+        }
+
+        .nav-links a:hover {
+            color: var(--color-text-primary);
+        }
+
+        .nav-cta {
+            padding: 0.6rem 1.2rem;
+            background: var(--color-accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: var(--space-3xl) 0;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 0.5rem 1rem;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-lg);
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent-secondary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--space-lg);
+            animation: fadeInUp 0.6s ease 0.2s both;
+        }
+
+        .hero h1 span {
+            background: var(--color-accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.2rem;
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+            margin-bottom: var(--space-xl);
+            max-width: 600px;
+            animation: fadeInUp 0.6s ease 0.3s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: var(--space-md);
+            animation: fadeInUp 0.6s ease 0.4s both;
+        }
+
+        .btn-primary {
+            padding: 1rem 2rem;
+            background: var(--color-accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow-primary);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2rem;
+            background: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-secondary);
+            border-color: var(--color-accent-primary);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: var(--space-3xl) 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: var(--space-3xl);
+        }
+
+        .section-number {
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-accent-secondary);
+            margin-bottom: var(--space-sm);
+            letter-spacing: 0.1em;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--space-md);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-3xl);
+        }
+
+        .feature-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+            opacity: 0;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-card:hover {
+            border-color: var(--color-accent-primary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg), var(--glow-primary);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--color-accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-md);
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-family: var(--font-heading);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .feature-description {
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Waitlist Section */
+        .waitlist-section {
+            padding: var(--space-3xl) 0;
+        }
+
+        .waitlist-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 24px;
+            padding: var(--space-3xl);
+            text-align: center;
+        }
+
+        .waitlist-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: var(--space-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            color: var(--color-text-primary);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--color-accent-primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary);
+        }
+
+        /* Footer */
+        .footer {
+            padding: var(--space-3xl) 0 var(--space-xl);
+            border-top: 1px solid var(--color-border-subtle);
+            margin-top: var(--space-3xl);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-text {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .social-links a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .social-links a:hover {
+            color: var(--color-accent-primary);
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: var(--space-3xl) 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            margin-top: var(--space-3xl);
+            align-items: stretch;
+        }
+
+        .pricing-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 20px;
+            padding: var(--space-2xl);
+            display: flex;
+            flex-direction: column;
+            transition: all var(--transition-base);
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .pricing-card:nth-child(1) { animation-delay: 0.1s; }
+        .pricing-card:nth-child(2) { animation-delay: 0.2s; }
+        .pricing-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .pricing-card:hover {
+            border-color: var(--color-accent-primary);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg), var(--glow-primary);
+        }
+
+        .pricing-card-featured {
+            background: linear-gradient(180deg, rgba(124, 58, 237, 0.1) 0%, var(--color-bg-secondary) 100%);
+            border: 2px solid var(--color-accent-primary);
+            box-shadow: var(--glow-primary);
+        }
+
+        .pricing-card-featured:hover {
+            transform: translateY(-12px);
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: var(--color-bg-tertiary);
+            border: 1px solid var(--color-border);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-md);
+            text-transform: uppercase;
+        }
+
+        .pricing-badge-featured {
+            background: var(--color-accent-gradient);
+            border: none;
+            color: white;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .pricing-title {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            line-height: 1.3;
+        }
+
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .pricing-amount {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--color-accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pricing-period {
+            color: var(--color-text-secondary);
+            font-size: 1rem;
+        }
+
+        .pricing-description {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: var(--space-lg);
+            min-height: 48px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            flex-grow: 1;
+            margin-bottom: var(--space-xl);
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--color-text-secondary);
+        }
+
+        .feature-icon-small {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .pricing-button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--color-accent-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .pricing-button:hover::before {
+            left: 100%;
+        }
+
+        .pricing-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-primary);
+        }
+
+        .pricing-button-secondary {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+        }
+
+        .pricing-button-secondary:hover {
+            background: var(--color-bg-tertiary);
+            border-color: var(--color-accent-primary);
+            box-shadow: none;
+        }
+
+        .pricing-trust {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-2xl);
+            margin-top: var(--space-3xl);
+            flex-wrap: wrap;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .trust-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: var(--color-accent-primary);
+            border-radius: 50%;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-card-featured {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .waitlist-container {
+                padding: var(--space-xl);
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: var(--space-md);
+                text-align: center;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .pricing-card-featured {
+                grid-column: span 1;
+            }
+
+            .pricing-amount {
+                font-size: 2.5rem;
+            }
+
+            .pricing-trust {
+                flex-direction: column;
+                gap: var(--space-md);
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="grid-background"></div>
+    <div class="gradient-orb gradient-orb-1"></div>
+    <div class="gradient-orb gradient-orb-2"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container nav-content">
+            <div class="logo">Avery</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+            </ul>
+            <button class="nav-cta">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="hero-badge-dot"></span>
+                    AI-Powered Content Studio
+                </div>
+                <h1>Transform Your <span>LinkedIn Presence</span> With AI</h1>
+                <p class="hero-description">
+                    Generate authentic, engaging LinkedIn content that captures your unique voice and expertise. Built for professionals who want to stand out.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="scrollToWaitlist()">Get 1 Free Trial</button>
+                    <button class="btn-secondary">Watch Demo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-number">01</p>
+                <h2 class="section-title">Powerful Features</h2>
+                <p class="section-subtitle">
+                    Everything you need to create impactful LinkedIn content at scale
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3 class="feature-title">AI Content Generation</h3>
+                    <p class="feature-description">
+                        Advanced AI analyzes your profile and expertise to generate authentic, high-quality content that sounds like you.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Smart Topic Suggestions</h3>
+                    <p class="feature-description">
+                        Get personalized topic recommendations based on your industry, role, and trending conversations in your network.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Quality Control</h3>
+                    <p class="feature-description">
+                        Choose from Normal, Advanced, or Professional quality levels to match your brand and audience expectations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="features" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-number">02</p>
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">
+                    Get started in minutes with our simple 3-step process
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">1</div>
+                    <h3 class="feature-title">Input Your Details</h3>
+                    <p class="feature-description">
+                        Share your LinkedIn profile, job role, and company. Our AI analyzes your background and expertise.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">2</div>
+                    <h3 class="feature-title">Select Topics</h3>
+                    <p class="feature-description">
+                        Choose from AI-recommended topics or enter your own ideas. We'll craft content around what matters to you.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">3</div>
+                    <h3 class="feature-title">Generate & Share</h3>
+                    <p class="feature-description">
+                        Receive polished, ready-to-publish content. Edit if needed, then share directly to LinkedIn.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <p class="section-number">03</p>
+                <h2 class="section-title">Choose Your Plan</h2>
+                <p class="section-subtitle">
+                    From personal brand testing to enterprise-grade content engines
+                </p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- SOLO Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-badge">SOLO</div>
+                    <h3 class="pricing-title">The Creator Launchpad</h3>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$29</span>
+                        <span class="pricing-period">/month</span>
+                    </div>
+                    <p class="pricing-description">
+                        Lightweight, self-serve content for personal brand testing
+                    </p>
+                    <ul class="pricing-features">
+                        <li>
+                            <span class="feature-icon-small">📝</span>
+                            <span><strong>5 LinkedIn Posts</strong> / Month</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">⚡</span>
+                            <span>Instant infographic-style content</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🚀</span>
+                            <span>Self-serve portal</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🎯</span>
+                            <span>Perfect for job seekers & consultants</span>
+                        </li>
+                    </ul>
+                    <button class="pricing-button pricing-button-secondary">Get Started</button>
+                </div>
+
+                <!-- PRO Plan (Recommended) -->
+                <div class="pricing-card pricing-card-featured">
+                    <div class="pricing-badge pricing-badge-featured">RECOMMENDED</div>
+                    <h3 class="pricing-title">The Business Standard</h3>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$299</span>
+                        <span class="pricing-period">/month</span>
+                    </div>
+                    <p class="pricing-description">
+                        Comprehensive system for founder-led teams and startups
+                    </p>
+                    <ul class="pricing-features">
+                        <li>
+                            <span class="feature-icon-small">📝</span>
+                            <span><strong>15 High-Quality Posts</strong> / Month</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">📅</span>
+                            <span>Consistent weekly narrative</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">👥</span>
+                            <span>Team governance & compliance</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🔄</span>
+                            <span>Approval workflows</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🎯</span>
+                            <span><strong>"Brand Voiceprint"</strong> accuracy</span>
+                        </li>
+                    </ul>
+                    <button class="pricing-button">Start Free Trial</button>
+                </div>
+
+                <!-- ENTERPRISE Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-badge">ENTERPRISE</div>
+                    <h3 class="pricing-title">The Strategic Engine</h3>
+                    <div class="pricing-price">
+                        <span class="pricing-amount">$1,999</span>
+                        <span class="pricing-period">/month</span>
+                    </div>
+                    <p class="pricing-description">
+                        Managed content engine for CEOs and spokespeople
+                    </p>
+                    <ul class="pricing-features">
+                        <li>
+                            <span class="feature-icon-small">📝</span>
+                            <span><strong>30 Posts + 2 Video Assets</strong></span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🎬</span>
+                            <span>Short-form video production</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">💼</span>
+                            <span><strong>Executive Premium Pack</strong></span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">🎯</span>
+                            <span>1:1 strategic consulting</span>
+                        </li>
+                        <li>
+                            <span class="feature-icon-small">⚡</span>
+                            <span>Fully managed monthly plan</span>
+                        </li>
+                    </ul>
+                    <button class="pricing-button pricing-button-secondary">Contact Sales</button>
+                </div>
+            </div>
+
+            <!-- Trust Signals -->
+            <div class="pricing-trust">
+                <div class="trust-item">
+                    <span class="trust-icon">✓</span>
+                    <span>No credit card required</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">✓</span>
+                    <span>14-day free trial</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon">✓</span>
+                    <span>Cancel anytime</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Waitlist Section -->
+    <section class="waitlist-section" id="waitlist">
+        <div class="container">
+            <div class="waitlist-container">
+                <p class="section-number">04</p>
+                <h2 class="section-title">Join the Waitlist</h2>
+                <p class="section-subtitle">
+                    Be among the first to experience the future of LinkedIn content creation. Get 1 free trial when you sign up.
+                </p>
+
+                <form class="waitlist-form" id="waitlistForm">
+                    <div class="form-group">
+                        <label class="form-label" for="company">Company Name</label>
+                        <input
+                            type="text"
+                            id="company"
+                            class="form-input"
+                            placeholder="Your company name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            class="form-input"
+                            placeholder="you@company.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="linkedin">LinkedIn Profile</label>
+                        <input
+                            type="url"
+                            id="linkedin"
+                            class="form-input"
+                            placeholder="https://linkedin.com/in/yourprofile"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="submit-btn">
+                        Get 1 Free Trial →
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    © 2026 Avery. AI-Powered LinkedIn Content Studio.
+                </div>
+                <div class="social-links">
+                    <a href="#">Twitter</a>
+                    <a href="#">LinkedIn</a>
+                    <a href="#">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll to waitlist
+        function scrollToWaitlist() {
+            document.getElementById('waitlist').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Form submission handler
+        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                company: document.getElementById('company').value,
+                email: document.getElementById('email').value,
+                linkedin: document.getElementById('linkedin').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // TODO: Integrate with Google Sheets API
+            console.log('Form submitted:', formData);
+
+            // Show success message
+            alert('Thank you for joining the waitlist! We\'ll be in touch soon.');
+            this.reset();
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
