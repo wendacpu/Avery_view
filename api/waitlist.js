@@ -115,9 +115,36 @@ module.exports = async (req, res) => {
             console.log('Data saved to Google Sheets successfully');
 
         } catch (sheetsError) {
-            // If Google Sheets fails, still return success (don't block user experience)
-            console.error('Google Sheets error (but form submission still succeeds):', sheetsError);
-            // Continue to return success response
+            // Return error details for debugging
+            console.error('Google Sheets error:', sheetsError.message);
+            console.error('Full error:', JSON.stringify(sheetsError, null, 2));
+
+            // Check for common issues
+            if (!process.env.GOOGLE_SHEET_ID) {
+                return res.status(500).json({
+                    error: 'Google Sheets configuration error',
+                    details: 'GOOGLE_SHEET_ID environment variable is not set'
+                });
+            }
+            if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+                return res.status(500).json({
+                    error: 'Google Sheets configuration error',
+                    details: 'GOOGLE_SERVICE_ACCOUNT_EMAIL environment variable is not set'
+                });
+            }
+            if (!process.env.GOOGLE_PRIVATE_KEY) {
+                return res.status(500).json({
+                    error: 'Google Sheets configuration error',
+                    details: 'GOOGLE_PRIVATE_KEY environment variable is not set'
+                });
+            }
+
+            // Return the actual error
+            return res.status(500).json({
+                error: 'Failed to save to Google Sheets',
+                details: sheetsError.message,
+                hint: 'Please check: 1) Environment variables are set in Vercel, 2) Service account has Sheet access, 3) Sheet ID is correct'
+            });
         }
 
         return res.status(200).json({
