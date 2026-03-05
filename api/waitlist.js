@@ -9,15 +9,7 @@
  * - GOOGLE_PRIVATE_KEY
  */
 
-const express = require('express');
-const cors = require('cors');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
 
 // Helper function to get Google Sheets client
 async function getSheetClient() {
@@ -40,15 +32,29 @@ async function getSheetClient() {
 }
 
 /**
- * POST /api/waitlist
- * Submit waitlist form data to Google Sheets
- *
- * Request body:
- * - company: string (required)
- * - email: string (required, must be valid email)
- * - linkedin: string (required, must contain linkedin.com)
+ * Vercel Serverless Function Handler
+ * @param {Request} req - Vercel request object
+ * @param {Response} res - Vercel response object
  */
-app.post('/', async (req, res) => {
+module.exports = async (req, res) => {
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Handle OPTIONS request for CORS
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // Only allow POST requests
+    if (req.method !== 'POST') {
+        return res.status(405).json({
+            error: 'Method not allowed',
+            allowed_methods: ['POST']
+        });
+    }
+
     try {
         const { company, email, linkedin } = req.body;
 
@@ -127,7 +133,4 @@ app.post('/', async (req, res) => {
             message: 'Unable to process your request. Please try again later.'
         });
     }
-});
-
-// Export the Express app as a serverless function handler
-module.exports = app;
+};
