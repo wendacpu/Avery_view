@@ -10,23 +10,36 @@
  */
 
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
 
 // Helper function to get Google Sheets client
 async function getSheetClient() {
     try {
-        // Create a new GoogleSpreadsheet client
-        const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
+        // Validate environment variables early to prevent crash
+        if (!process.env.GOOGLE_SHEET_ID) {
+            throw new Error('GOOGLE_SHEET_ID is missing');
+        }
+        if (!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+            throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL is missing');
+        }
+        if (!process.env.GOOGLE_PRIVATE_KEY) {
+            throw new Error('GOOGLE_PRIVATE_KEY is missing');
+        }
 
-        // Authenticate using service account
-        await doc.useServiceAccountAuth({
-            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
+        // Initialize auth
+        const auth = new JWT({
+            email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
+
+        // Create a new GoogleSpreadsheet client
+        const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID, auth);
 
         await doc.loadInfo();
         return doc;
     } catch (error) {
-        console.error('Error connecting to Google Sheets:', error);
+        console.error('Error connecting to Google Sheets:', error.message);
         throw error;
     }
 }
