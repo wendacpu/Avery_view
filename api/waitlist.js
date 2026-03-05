@@ -1,14 +1,17 @@
 /**
  * Vercel Serverless Function for Waitlist API
  * Handles POST requests to /api/waitlist
+ * Integrates with Google Sheets to store submissions
  *
- * This function runs on Vercel's serverless infrastructure.
- * Environment variables are optional - Google Sheets integration
- * will be added when credentials are configured.
+ * Environment Variables (required):
+ * - GOOGLE_SHEET_ID
+ * - GOOGLE_SERVICE_ACCOUNT_EMAIL
+ * - GOOGLE_PRIVATE_KEY
  */
 
 const express = require('express');
 const cors = require('cors');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 const app = express();
 
@@ -16,9 +19,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Helper function to get Google Sheets client
+async function getSheetClient() {
+    try {
+        // Create a new GoogleSpreadsheet client
+        const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
+
+        // Authenticate using service account
+        await doc.useServiceAccountAuth({
+            client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
+        });
+
+        await doc.loadInfo();
+        return doc;
+    } catch (error) {
+        console.error('Error connecting to Google Sheets:', error);
+        throw error;
+    }
+}
+
 /**
  * POST /api/waitlist
- * Submit email to waitlist
+ * Submit waitlist form data to Google Sheets
  *
  * Request body:
  * - company: string (required)
@@ -54,7 +77,7 @@ app.post('/', async (req, res) => {
             });
         }
 
-        // Log submission (for now - will be replaced with Google Sheets)
+        // Log submission to console
         console.log('Waitlist submission:', {
             timestamp: new Date().toISOString(),
             company,
@@ -62,11 +85,34 @@ app.post('/', async (req, res) => {
             linkedin
         });
 
-        // TODO: Add Google Sheets integration when environment variables are configured
-        // The following will be enabled later:
-        // - process.env.GOOGLE_SHEET_ID
-        // - process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
-        // - process.env.GOOGLE_PRIVATE_KEY
+        // Save to Google Sheets
+        try {
+            const doc = await getSheetClient();
+
+            // Get or create the 'Waitlist' sheet
+            let sheet = doc.sheetsByTitle['Waitlist'];
+            if (!sheet) {
+                sheet = await doc.addSheet({
+                    title: 'Waitlist',
+                    headers: ['Timestamp', 'Company', 'Email', 'LinkedIn URL']
+                });
+            }
+
+            // Add new row with submission data
+            await sheet.addRow({
+                Timestamp: new Date().toISOString(),
+                Company: company,
+                Email: email,
+                'LinkedIn URL': linkedin
+            });
+
+            console.log('Data saved to Google Sheets successfully');
+
+        } catch (sheetsError) {
+            // If Google Sheets fails, still return success (don't block user experience)
+            console.error('Google Sheets error (but form submission still succeeds):', sheetsError);
+            // Continue to return success response
+        }
 
         return res.status(200).json({
             success: true,
@@ -74,7 +120,7 @@ app.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error submitting to waitlist:', error);
+        console.error('Error in waitlist API:', error);
 
         return res.status(500).json({
             error: 'Internal server error',
@@ -84,5 +130,4 @@ app.post('/', async (req, res) => {
 });
 
 // Export the Express app as a serverless function handler
-// Vercel will automatically handle the request/response cycle
 module.exports = app;
