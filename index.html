@@ -1135,22 +1135,44 @@
         }
 
         // Form submission handler
-        document.getElementById('waitlistForm').addEventListener('submit', function(e) {
+        document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const formData = {
                 company: document.getElementById('company').value,
                 email: document.getElementById('email').value,
-                linkedin: document.getElementById('linkedin').value,
-                timestamp: new Date().toISOString()
+                linkedin: document.getElementById('linkedin').value
             };
 
-            // TODO: Integrate with Google Sheets API
-            console.log('Form submitted:', formData);
+            const submitBtn = this.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
 
-            // Show success message
-            alert('Thank you for joining the waitlist! We\'ll be in touch soon.');
-            this.reset();
+            try {
+                const response = await fetch('/api/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Thank you for joining the waitlist! We\'ll be in touch soon.');
+                    this.reset();
+                } else {
+                    alert('Error: ' + (data.error || 'Something went wrong. Please try again.'));
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                alert('Network error. Please check your connection and try again.');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
 
         // Add scroll-based animations
