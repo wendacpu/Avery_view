@@ -85,7 +85,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 Avery server running at http://localhost:${PORT}`);
+    console.log(`\n🚀 AVERY server running at http://localhost:${PORT}`);
     console.log(`\n📋 To integrate Google Sheets:`);
     console.log(`   1. Create a Google Sheet`);
     console.log(`   2. Set up a service account: https://developers.google.com/sheets/api/quickstart/nodejs`);
