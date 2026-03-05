@@ -808,6 +808,69 @@
                 align-items: center;
             }
         }
+
+        /* Custom Cursor Effect */
+        * {
+            cursor: none;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--color-accent-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+            mix-blend-mode: difference;
+        }
+
+        .custom-cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--color-accent-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10001;
+            transition: transform 0.05s ease-out;
+        }
+
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            opacity: 0.8;
+        }
+
+        .custom-cursor-dot.hover {
+            transform: scale(0.5);
+        }
+
+        .custom-cursor.click {
+            transform: scale(0.8);
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            * {
+                cursor: auto;
+            }
+            .custom-cursor,
+            .custom-cursor-dot,
+            .cursor-trail {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -968,12 +1031,11 @@
                             <span>Perfect for job seekers & consultants</span>
                         </li>
                     </ul>
-                    <button class="pricing-button pricing-button-secondary">Get Started</button>
                 </div>
 
                 <!-- PRO Plan (Recommended) -->
-                <div class="pricing-card pricing-card-featured">
-                    <div class="pricing-badge pricing-badge-featured">RECOMMENDED</div>
+                <div class="pricing-card">
+                    <div class="pricing-badge">RECOMMENDED</div>
                     <h3 class="pricing-title">The Business Standard</h3>
                     <div class="pricing-price">
                         <span class="pricing-amount">$299</span>
@@ -1004,7 +1066,6 @@
                             <span><strong>"Brand Voiceprint"</strong> accuracy</span>
                         </li>
                     </ul>
-                    <button class="pricing-button">Get Started</button>
                 </div>
 
                 <!-- ENTERPRISE Plan -->
@@ -1040,7 +1101,6 @@
                             <span>Fully managed monthly plan</span>
                         </li>
                     </ul>
-                    <button class="pricing-button pricing-button-secondary">Contact Sales</button>
                 </div>
             </div>
 
@@ -1187,6 +1247,104 @@
         document.querySelectorAll('.feature-card').forEach(card => {
             observer.observe(card);
         });
+
+        // Custom Cursor Effect
+        (function() {
+            // Check if device supports hover (not mobile)
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile) return;
+
+            // Create cursor elements
+            const cursor = document.createElement('div');
+            cursor.className = 'custom-cursor';
+            const cursorDot = document.createElement('div');
+            cursorDot.className = 'custom-cursor-dot';
+            const cursorTrail = document.createElement('div');
+            cursorTrail.className = 'cursor-trail';
+
+            document.body.appendChild(cursorTrail);
+            document.body.appendChild(cursor);
+            document.body.appendChild(cursorDot);
+
+            // Mouse position tracking
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+            let trailX = 0, trailY = 0;
+
+            // Update mouse position
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            // Smooth cursor animation
+            function animate() {
+                // Smooth follow for main cursor
+                const dx = mouseX - cursorX;
+                const dy = mouseY - cursorY;
+                cursorX += dx * 0.15;
+                cursorY += dy * 0.15;
+
+                // Even smoother for dot
+                const dotDx = mouseX - parseFloat(cursorDot.style.left || 0);
+                const dotDy = mouseY - parseFloat(cursorDot.style.top || 0);
+                const dotX = parseFloat(cursorDot.style.left || 0) + dotDx * 0.3;
+                const dotY = parseFloat(cursorDot.style.top || 0) + dotDy * 0.3;
+
+                // Smoothest for trail
+                const trailDx = mouseX - trailX;
+                const trailDy = mouseY - trailY;
+                trailX += trailDx * 0.08;
+                trailY += trailDy * 0.08;
+
+                // Update positions
+                cursor.style.left = cursorX - 10 + 'px';
+                cursor.style.top = cursorY - 10 + 'px';
+                cursorDot.style.left = dotX - 4 + 'px';
+                cursorDot.style.top = dotY - 4 + 'px';
+                cursorTrail.style.left = trailX - 20 + 'px';
+                cursorTrail.style.top = trailY - 20 + 'px';
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            // Hover effect on interactive elements
+            const interactiveElements = document.querySelectorAll('a, button, .pricing-card, .feature-card');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hover');
+                    cursorDot.classList.add('hover');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hover');
+                    cursorDot.classList.remove('hover');
+                });
+            });
+
+            // Click effect
+            document.addEventListener('mousedown', () => {
+                cursor.classList.add('click');
+            });
+
+            document.addEventListener('mouseup', () => {
+                cursor.classList.remove('click');
+            });
+
+            // Hide cursor when leaving window
+            document.addEventListener('mouseleave', () => {
+                cursor.style.opacity = '0';
+                cursorDot.style.opacity = '0';
+                cursorTrail.style.opacity = '0';
+            });
+
+            document.addEventListener('mouseenter', () => {
+                cursor.style.opacity = '1';
+                cursorDot.style.opacity = '1';
+                cursorTrail.style.opacity = '1';
+            });
+        })();
     </script>
 </body>
 </html>
