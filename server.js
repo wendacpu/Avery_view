@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
 const cors = require('cors');
 
 const app = express();
@@ -36,24 +37,28 @@ app.post('/api/waitlist', async (req, res) => {
             return res.status(400).json({ error: 'Invalid LinkedIn URL' });
         }
 
+        // Initialize auth (v4 syntax)
+        const auth = new JWT({
+            email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+            key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+
         // Initialize Google Sheet
-        // TODO: Set up Google Sheets API credentials
-        // const doc = new GoogleSpreadsheet(SHEET_ID);
-        // await doc.useServiceAccountAuth({
-        //     client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        //     private_key: process.env.GOOGLE_PRIVATE_KEY,
-        // });
-        // await doc.loadInfo();
-        // const sheet = doc.sheetsByTitle[SHEET_TITLE] || await doc.addSheet({
-        //     title: SHEET_TITLE,
-        //     headers: ['Timestamp', 'Company', 'Email', 'LinkedIn']
-        // });
-        // await sheet.addRow({
-        //     Timestamp: new Date().toISOString(),
-        //     Company: company,
-        //     Email: email,
-        //     LinkedIn: linkedin
-        // });
+        const doc = new GoogleSpreadsheet(SHEET_ID, auth);
+        await doc.loadInfo();
+
+        const sheet = doc.sheetsByTitle[SHEET_TITLE] || await doc.addSheet({
+            title: SHEET_TITLE,
+            headers: ['Timestamp', 'Company', 'Email', 'LinkedIn']
+        });
+
+        await sheet.addRow({
+            Timestamp: new Date().toISOString(),
+            Company: company,
+            Email: email,
+            LinkedIn: linkedin
+        });
 
         // Log submission for now (replace with actual Sheets integration)
         console.log('Waitlist submission:', {
