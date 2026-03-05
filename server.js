@@ -50,7 +50,7 @@ app.post('/api/waitlist', async (req, res) => {
 
         const sheet = doc.sheetsByTitle[SHEET_TITLE] || await doc.addSheet({
             title: SHEET_TITLE,
-            headers: ['Timestamp', 'Company', 'Email', 'LinkedIn']
+            headerValues: ['Timestamp', 'Company', 'Email', 'LinkedIn']
         });
 
         await sheet.addRow({

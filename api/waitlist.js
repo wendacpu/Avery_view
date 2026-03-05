@@ -113,7 +113,7 @@ module.exports = async (req, res) => {
             if (!sheet) {
                 sheet = await doc.addSheet({
                     title: 'Waitlist',
-                    headers: ['Timestamp', 'Company', 'Email', 'LinkedIn URL']
+                    headerValues: ['Timestamp', 'Company', 'Email', 'LinkedIn URL']
                 });
             }
 
