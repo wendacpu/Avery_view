@@ -88,8 +88,16 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Validate LinkedIn URL
-        if (!linkedin.includes('linkedin.com/')) {
+        // Normalize LinkedIn URL - add https:// if missing
+        let normalizedLinkedin = linkedin.trim();
+
+        // If URL doesn't start with a protocol, add https://
+        if (!normalizedLinkedin.match(/^https?:\/\//i)) {
+            normalizedLinkedin = 'https://' + normalizedLinkedin;
+        }
+
+        // Validate LinkedIn URL (now with normalized URL)
+        if (!normalizedLinkedin.includes('linkedin.com/')) {
             return res.status(400).json({
                 error: 'Invalid LinkedIn URL - must contain linkedin.com',
                 received: linkedin
@@ -101,7 +109,7 @@ module.exports = async (req, res) => {
             timestamp: new Date().toISOString(),
             company,
             email,
-            linkedin
+            linkedin: normalizedLinkedin
         });
 
         // Save to Google Sheets
@@ -122,7 +130,7 @@ module.exports = async (req, res) => {
                 Timestamp: new Date().toISOString(),
                 Company: company,
                 Email: email,
-                'LinkedIn URL': linkedin
+                'LinkedIn URL': normalizedLinkedin
             });
 
             console.log('Data saved to Google Sheets successfully');
